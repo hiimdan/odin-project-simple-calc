@@ -6,6 +6,9 @@ numberButtons.forEach(btn => {
 const clearButton = document.querySelector('#clear');
 clearButton.addEventListener('click', clearScreen);
 
+const negateButton = document.querySelector('#negate');
+negateButton.addEventListener('click', negateValue);
+
 const operatorButtons = document.querySelectorAll('.operator');
 operatorButtons.forEach(btn => {
     btn.addEventListener('click', handleOperator);
@@ -26,17 +29,23 @@ let currentOperator = null;
 let equalsPressed = false;
 
 function operate(left, right, operand) {
+    let result;
     if (operand == '+') {
-        return left + right;
+        result = left + right;
     }
     if (operand == '-') {
-        return left - right;
+        result = left - right;
     }
     if (operand == 'x') {
-        return left * right;
+        result = left * right;
     }
     if (operand == '/') {
-        return left / right;
+        result = left / right;
+    }
+    if (result % 1 !== 0) {
+        return Math.round(result * 10000000) / 10000000;
+    } else {
+        return result;
     }
 }
 
@@ -46,10 +55,16 @@ function inputNumber(e) {
             prevValue = e.target.textContent;
             equalsPressed = false;
         } else {
+            if (e.target.textContent === '0' && prevValue === '0') {
+                return;
+            }
             prevValue += e.target.textContent;
         }
         calcDisplay.textContent = prevValue;
     } else {
+        if (e.target.textContent === '0' && currentValue === '0') {
+            return;
+        }
         currentValue += e.target.textContent;
         calcDisplay.textContent = currentValue;
     }
@@ -104,6 +119,26 @@ function handleDecimal() {
         } else if (!/\./.test(currentValue)) {
             calcDisplay.textContent += '.';
             currentValue += '.';
+        }
+    }
+}
+
+function negateValue() {
+    if (calcDisplay.textContent && !/^0\.?0*$/.test(calcDisplay.textContent)) {
+        if (currentOperator === null) {
+            if (prevValue[0] === '-') {
+                prevValue = prevValue.slice(1);
+            } else {
+                prevValue = '-' + prevValue;
+            }
+            calcDisplay.textContent = prevValue;
+        } else {
+            if (currentValue[0] === '-') {
+                currentValue = currentValue.slice(1);
+            } else {
+                currentValue = '-' + currentValue;
+            }
+            calcDisplay.textContent = currentValue;
         }
     }
 }
