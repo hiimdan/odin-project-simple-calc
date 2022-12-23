@@ -45,7 +45,7 @@ function operate(left, right, operand) {
     if (operand == 'x') {
         result = left * right;
     }
-    if (operand == '/') {
+    if (operand == '÷') {
         if (right === 0) {
             return undefined;
         }
@@ -70,7 +70,6 @@ function inputNumber(e) {
             if (prevValue[prevValue.length - 1] === '%') {
                 return;
             }
-            console.log(e)
             prevValue += e.type == 'click' ? e.target.textContent : e.key;
         }
         calcDisplay.textContent = prevValue;
@@ -91,6 +90,7 @@ function clearScreen() {
     prevValue = '';
     currentValue = '';
     currentOperator = null;
+    applyOperatorStyle(null);
     equalsPressed = false;
 }
 
@@ -98,15 +98,36 @@ function handleOperator(e) {
     if (calcDisplay.textContent && calcDisplay.textContent !== 'undefined') {
         if (currentOperator === null || !currentValue) {
             currentOperator = e.type == 'click' ? e.target.textContent : e.key;
+            applyOperatorStyle(currentOperator);
         } else {
             let result = operate(parsePercent(prevValue), parsePercent(currentValue), currentOperator);
             prevValue = '' + result;
             calcDisplay.textContent = prevValue;
-            console.log(prevValue);
-            console.log('hello')
             currentOperator = prevValue === 'undefined' ? null : e.type == 'click' ? e.target.textContent : e.key;
+            if (!currentOperator) {
+                applyOperatorStyle(null);
+            } else {
+                applyOperatorStyle(currentOperator);
+            }
             currentValue = '';
         }
+    }
+}
+
+function applyOperatorStyle(symbol) {
+    if (!symbol) {
+        // operatorButtons.forEach(btn => btn.classList.remove('operator-pressed'));
+        operatorButtons.forEach(btn => btn.style.backgroundColor = '');
+    } else {
+        operatorButtons.forEach(btn => {
+            if (btn.textContent === symbol) {
+                // btn.classList.add('operator-pressed');
+                btn.style.backgroundColor = 'rgb(230, 230, 230)';
+            } else {
+                // btn.classList.remove('operator-pressed');
+                btn.style.backgroundColor = '';
+            }
+        })
     }
 }
 
@@ -117,6 +138,7 @@ function handleEquals() {
         calcDisplay.textContent = prevValue;
         currentValue = '';
         currentOperator = null;
+        applyOperatorStyle(null);
         equalsPressed = true;
     } else if (prevValue[prevValue.length - 1] === '%' && currentOperator === null) {
         equalsPressed = true;
@@ -220,6 +242,8 @@ function handleKeyboardInput(e) {
     } else if (e.key == '/' || e.key == '*' || e.key == '+' || e.key == '-') {
         if (e.key == '*') {
             handleOperator({key: 'x'});
+        } else if (e.key == '/') {
+            handleOperator({key: '÷'});
         } else {
             handleOperator(e);
         }

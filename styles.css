@@ -15,15 +15,11 @@ h1 {
     text-align: center;
 }
 
-.container {
-
-}
-
 #calculator {
-    width: 450px;
+    width: 400px;
     height: 600px;
     border: 2px solid black;
-    padding: 10px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
 }
@@ -36,7 +32,8 @@ h1 {
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
-    font-size: 2rem;
+    font-size: 2.3rem;
+    font-family: monospace;
 }
 
 #btn-container {
@@ -44,6 +41,7 @@ h1 {
     display: flex;
     justify-content: space-between;
     user-select: none;
+    font-family: monospace;
 }
 
 .btn-group {
@@ -52,12 +50,46 @@ h1 {
     gap: 5px;
 }
 
-.btns-1 {
-    min-width: 350px;
+.btns-2 {
+    justify-content: flex-end;
+    font-weight: bold;
+    color: darkblue;
 }
 
 .button {
     width: 90px;
     height: 90px;
     border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 3px;
+    font-size: 1.3rem;
+    box-sizing: border-box;
+}
+
+#clear,
+#backspace,
+#negate,
+#decimal,
+#percent {
+    font-weight: bold;
+}
+
+#clear {
+    color: red;
+}
+
+#decimal {
+    align-items: flex-end;
+    padding-bottom: 15px;
+}
+
+#equals {
+    background-color: #00e300eb;
+    color: white;
+}
+
+.operator-pressed {
+    background-color: rgb(230, 230, 230);
 }
