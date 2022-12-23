@@ -12,6 +12,9 @@ negateButton.addEventListener('click', negateValue);
 const percentButton = document.querySelector('#percent');
 percentButton.addEventListener('click', handlePercent);
 
+const backButton = document.querySelector('#backspace');
+backButton.addEventListener('click', backspace);
+
 const operatorButtons = document.querySelectorAll('.operator');
 operatorButtons.forEach(btn => {
     btn.addEventListener('click', handleOperator);
@@ -184,5 +187,16 @@ function parsePercent(str) {
         return operate(str.slice(0, -1), 0.01, 'x');
     } else {
         return parseFloat(str);
+    }
+}
+
+function backspace() {
+    if (currentOperator === null && prevValue) {
+        equalsPressed = false;
+        prevValue = prevValue.slice(0, -1);
+        calcDisplay.textContent = prevValue;
+    } else if (currentValue) {
+        currentValue = currentValue.slice(0, -1);
+        calcDisplay.textContent = currentValue;
     }
 }
