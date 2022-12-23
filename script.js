@@ -93,7 +93,7 @@ function handleOperator(e) {
             currentOperator = e.target.textContent;
         } else {
             let result = operate(parsePercent(prevValue), parsePercent(currentValue), currentOperator);
-            prevValue = result;
+            prevValue = '' + result;
             calcDisplay.textContent = result;
             currentOperator = e.target.textContent;
             currentValue = '';
@@ -104,7 +104,7 @@ function handleOperator(e) {
 function handleEquals() {
     if (prevValue && currentValue) {
         let result = operate(parsePercent(prevValue), parsePercent(currentValue), currentOperator);
-        prevValue = result;
+        prevValue = '' + result;
         calcDisplay.textContent = result;
         currentValue = '';
         currentOperator = null;
