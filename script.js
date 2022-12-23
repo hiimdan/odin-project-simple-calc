@@ -46,6 +46,9 @@ function operate(left, right, operand) {
         result = left * right;
     }
     if (operand == '/') {
+        if (right === 0) {
+            return undefined;
+        }
         result = left / right;
     }
     if (result % 1 !== 0) {
@@ -57,7 +60,7 @@ function operate(left, right, operand) {
 
 function inputNumber(e) {
     if (currentOperator === null) {
-        if (equalsPressed) {
+        if (equalsPressed || prevValue === 'undefined') {
             prevValue = e.target.textContent;
             equalsPressed = false;
         } else {
@@ -91,14 +94,16 @@ function clearScreen() {
 }
 
 function handleOperator(e) {
-    if (calcDisplay.textContent) {
+    if (calcDisplay.textContent && calcDisplay.textContent !== 'undefined') {
         if (currentOperator === null || !currentValue) {
             currentOperator = e.target.textContent;
         } else {
             let result = operate(parsePercent(prevValue), parsePercent(currentValue), currentOperator);
             prevValue = '' + result;
-            calcDisplay.textContent = result;
-            currentOperator = e.target.textContent;
+            calcDisplay.textContent = prevValue;
+            console.log(prevValue);
+            console.log('hello')
+            currentOperator = prevValue === 'undefined' ? null : e.target.textContent;
             currentValue = '';
         }
     }
@@ -108,20 +113,20 @@ function handleEquals() {
     if (prevValue && currentValue) {
         let result = operate(parsePercent(prevValue), parsePercent(currentValue), currentOperator);
         prevValue = '' + result;
-        calcDisplay.textContent = result;
+        calcDisplay.textContent = prevValue;
         currentValue = '';
         currentOperator = null;
         equalsPressed = true;
     } else if (prevValue[prevValue.length - 1] === '%' && currentOperator === null) {
         equalsPressed = true;
-        prevValue = parsePercent(prevValue);
+        prevValue = '' + parsePercent(prevValue);
         calcDisplay.textContent = prevValue;
     }
 }
 
 function handleDecimal() {
     if (currentOperator === null) {
-        if (!prevValue) {
+        if (!prevValue || prevValue === 'undefined') {
             calcDisplay.textContent = '0.';
             prevValue = '0.';
         } else if (!/\./.test(prevValue) && prevValue[prevValue.length - 1] !== '%') {
@@ -140,7 +145,7 @@ function handleDecimal() {
 }
 
 function negateValue() {
-    if (calcDisplay.textContent && !/^0\.?0*$/.test(calcDisplay.textContent)) {
+    if (calcDisplay.textContent && !/^0\.?0*$/.test(calcDisplay.textContent) && calcDisplay.textContent !== 'undefined') {
         if (currentOperator === null) {
             if (prevValue[0] === '-') {
                 prevValue = prevValue.slice(1);
@@ -160,7 +165,7 @@ function negateValue() {
 }
 
 function handlePercent() {
-    if (calcDisplay.textContent && calcDisplay.textContent[calcDisplay.textContent.length - 1] !== '%') {
+    if (calcDisplay.textContent && calcDisplay.textContent[calcDisplay.textContent.length - 1] !== '%' && calcDisplay.textContent !== 'undefined') {
         if (currentOperator === null) {
             if (equalsPressed) {
                 equalsPressed = false;
@@ -191,6 +196,10 @@ function parsePercent(str) {
 }
 
 function backspace() {
+    if (prevValue === 'undefined') {
+        clearScreen();
+        return;
+    }
     if (currentOperator === null && prevValue) {
         equalsPressed = false;
         prevValue = prevValue.slice(0, -1);
