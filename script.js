@@ -61,7 +61,7 @@ function operate(left, right, operand) {
 function inputNumber(e) {
     if (currentOperator === null) {
         if (equalsPressed || prevValue === 'undefined') {
-            prevValue = e.target.textContent;
+            prevValue = e.type == 'click' ? e.target.textContent : e.key;
             equalsPressed = false;
         } else {
             if (prevValue === '0') {
@@ -70,7 +70,8 @@ function inputNumber(e) {
             if (prevValue[prevValue.length - 1] === '%') {
                 return;
             }
-            prevValue += e.target.textContent;
+            console.log(e)
+            prevValue += e.type == 'click' ? e.target.textContent : e.key;
         }
         calcDisplay.textContent = prevValue;
     } else {
@@ -80,7 +81,7 @@ function inputNumber(e) {
         if (currentValue[currentValue.length - 1] === '%') {
             return;
         }
-        currentValue += e.target.textContent;
+        currentValue += e.type == 'click' ? e.target.textContent : e.key;
         calcDisplay.textContent = currentValue;
     }
 }
@@ -96,14 +97,14 @@ function clearScreen() {
 function handleOperator(e) {
     if (calcDisplay.textContent && calcDisplay.textContent !== 'undefined') {
         if (currentOperator === null || !currentValue) {
-            currentOperator = e.target.textContent;
+            currentOperator = e.type == 'click' ? e.target.textContent : e.key;
         } else {
             let result = operate(parsePercent(prevValue), parsePercent(currentValue), currentOperator);
             prevValue = '' + result;
             calcDisplay.textContent = prevValue;
             console.log(prevValue);
             console.log('hello')
-            currentOperator = prevValue === 'undefined' ? null : e.target.textContent;
+            currentOperator = prevValue === 'undefined' ? null : e.type == 'click' ? e.target.textContent : e.key;
             currentValue = '';
         }
     }
@@ -132,6 +133,7 @@ function handleDecimal() {
         } else if (!/\./.test(prevValue) && prevValue[prevValue.length - 1] !== '%') {
             calcDisplay.textContent += '.';
             prevValue += '.';
+            equalsPressed = false;
         }
     } else {
         if (!currentValue) {
@@ -207,5 +209,29 @@ function backspace() {
     } else if (currentValue) {
         currentValue = currentValue.slice(0, -1);
         calcDisplay.textContent = currentValue;
+    }
+}
+
+window.addEventListener('keydown', handleKeyboardInput);
+
+function handleKeyboardInput(e) {
+    if (parseInt(e.key) >= 0 && parseInt(e.key) <= 9) {
+        inputNumber(e);
+    } else if (e.key == '/' || e.key == '*' || e.key == '+' || e.key == '-') {
+        if (e.key == '*') {
+            handleOperator({key: 'x'});
+        } else {
+            handleOperator(e);
+        }
+    } else if (e.key == 'Enter') {
+        handleEquals();
+    } else if (e.key == 'Backspace') {
+        backspace();
+    } else if (e.key == '.') {
+        handleDecimal();
+    } else if (e.key == '%') {
+        handlePercent();
+    } else if (e.key == 'Delete') {
+        clearScreen();
     }
 }

@@ -36,12 +36,14 @@ h1 {
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
+    font-size: 2rem;
 }
 
 #btn-container {
     flex: 1 1 auto;
     display: flex;
     justify-content: space-between;
+    user-select: none;
 }
 
 .btn-group {
