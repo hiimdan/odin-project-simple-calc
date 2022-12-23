@@ -9,6 +9,9 @@ clearButton.addEventListener('click', clearScreen);
 const negateButton = document.querySelector('#negate');
 negateButton.addEventListener('click', negateValue);
 
+const percentButton = document.querySelector('#percent');
+percentButton.addEventListener('click', handlePercent);
+
 const operatorButtons = document.querySelectorAll('.operator');
 operatorButtons.forEach(btn => {
     btn.addEventListener('click', handleOperator);
@@ -55,14 +58,20 @@ function inputNumber(e) {
             prevValue = e.target.textContent;
             equalsPressed = false;
         } else {
-            if (e.target.textContent === '0' && prevValue === '0') {
+            if (prevValue === '0') {
+                return;
+            }
+            if (prevValue[prevValue.length - 1] === '%') {
                 return;
             }
             prevValue += e.target.textContent;
         }
         calcDisplay.textContent = prevValue;
     } else {
-        if (e.target.textContent === '0' && currentValue === '0') {
+        if (currentValue === '0') {
+            return;
+        }
+        if (currentValue[currentValue.length - 1] === '%') {
             return;
         }
         currentValue += e.target.textContent;
@@ -83,7 +92,7 @@ function handleOperator(e) {
         if (currentOperator === null || !currentValue) {
             currentOperator = e.target.textContent;
         } else {
-            let result = operate(parseFloat(prevValue), parseFloat(currentValue), currentOperator);
+            let result = operate(parsePercent(prevValue), parsePercent(currentValue), currentOperator);
             prevValue = result;
             calcDisplay.textContent = result;
             currentOperator = e.target.textContent;
@@ -94,12 +103,16 @@ function handleOperator(e) {
 
 function handleEquals() {
     if (prevValue && currentValue) {
-        let result = operate(parseFloat(prevValue), parseFloat(currentValue), currentOperator);
+        let result = operate(parsePercent(prevValue), parsePercent(currentValue), currentOperator);
         prevValue = result;
         calcDisplay.textContent = result;
         currentValue = '';
         currentOperator = null;
         equalsPressed = true;
+    } else if (prevValue[prevValue.length - 1] === '%' && currentOperator === null) {
+        equalsPressed = true;
+        prevValue = parsePercent(prevValue);
+        calcDisplay.textContent = prevValue;
     }
 }
 
@@ -108,7 +121,7 @@ function handleDecimal() {
         if (!prevValue) {
             calcDisplay.textContent = '0.';
             prevValue = '0.';
-        } else if (!/\./.test(prevValue)) {
+        } else if (!/\./.test(prevValue) && prevValue[prevValue.length - 1] !== '%') {
             calcDisplay.textContent += '.';
             prevValue += '.';
         }
@@ -116,7 +129,7 @@ function handleDecimal() {
         if (!currentValue) {
             calcDisplay.textContent = '0.';
             currentValue = '0.';
-        } else if (!/\./.test(currentValue)) {
+        } else if (!/\./.test(currentValue) && currentValue[currentValue.length - 1] !== '%') {
             calcDisplay.textContent += '.';
             currentValue += '.';
         }
@@ -132,7 +145,7 @@ function negateValue() {
                 prevValue = '-' + prevValue;
             }
             calcDisplay.textContent = prevValue;
-        } else {
+        } else if (currentValue) {
             if (currentValue[0] === '-') {
                 currentValue = currentValue.slice(1);
             } else {
@@ -140,5 +153,36 @@ function negateValue() {
             }
             calcDisplay.textContent = currentValue;
         }
+    }
+}
+
+function handlePercent() {
+    if (calcDisplay.textContent && calcDisplay.textContent[calcDisplay.textContent.length - 1] !== '%') {
+        if (currentOperator === null) {
+            if (equalsPressed) {
+                equalsPressed = false;
+            }
+            if (prevValue === '0.') {
+                prevValue = '0%';
+            } else {
+                prevValue += '%';
+            }
+            calcDisplay.textContent = prevValue;
+        } else if (currentValue) {
+            if (currentValue === '0.') {
+                currentValue = '0%';
+            } else {
+                currentValue += '%';
+            }
+            calcDisplay.textContent = currentValue;
+        }
+    }
+}
+
+function parsePercent(str) {
+    if (str[str.length -1 ] === '%') {
+        return operate(str.slice(0, -1), 0.01, 'x');
+    } else {
+        return parseFloat(str);
     }
 }
