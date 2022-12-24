@@ -62,12 +62,13 @@ function operate(left, right, operand) {
 }
 
 function inputNumber(e) {
-    if (currentOperator === null) {
+    if (!currentOperator) {
         if (equalsPressed || prevValue === 'undefined') {
             prevValue = e.type == 'click' ? e.target.textContent : e.key;
             equalsPressed = false;
         } else {
             if (prevValue === '0' ||
+                prevValue === '-0' ||
                 prevValue[prevValue.length - 1] === '%' ||
                 !checkLength(prevValue)) {
                 return;
@@ -77,6 +78,7 @@ function inputNumber(e) {
         calcDisplay.textContent = prevValue;
     } else {
         if (currentValue === '0' ||
+            currentValue === '-0' ||
             currentValue[currentValue.length - 1] === '%' ||
             !checkLength(currentValue)) {
             return;
@@ -97,7 +99,7 @@ function clearScreen() {
 
 function handleOperator(e) {
     if (calcDisplay.textContent && calcDisplay.textContent !== 'undefined') {
-        if (currentOperator === null || !currentValue) {
+        if (!currentOperator || !currentValue) {
             currentOperator = e.type == 'click' ? e.target.textContent : e.key;
             applyOperatorStyle(currentOperator);
         } else {
@@ -117,15 +119,12 @@ function handleOperator(e) {
 
 function applyOperatorStyle(symbol) {
     if (!symbol) {
-        // operatorButtons.forEach(btn => btn.classList.remove('operator-pressed'));
         operatorButtons.forEach(btn => btn.style.backgroundColor = '');
     } else {
         operatorButtons.forEach(btn => {
             if (btn.textContent === symbol) {
-                // btn.classList.add('operator-pressed');
                 btn.style.backgroundColor = 'rgb(230, 230, 230)';
             } else {
-                // btn.classList.remove('operator-pressed');
                 btn.style.backgroundColor = '';
             }
         })
@@ -141,7 +140,7 @@ function handleEquals() {
         currentOperator = null;
         applyOperatorStyle(null);
         equalsPressed = true;
-    } else if (prevValue[prevValue.length - 1] === '%' && currentOperator === null) {
+    } else if (prevValue[prevValue.length - 1] === '%' && !currentOperator) {
         equalsPressed = true;
         prevValue = '' + parsePercent(prevValue);
         calcDisplay.textContent = prevValue;
@@ -149,7 +148,7 @@ function handleEquals() {
 }
 
 function handleDecimal() {
-    if (currentOperator === null) {
+    if (!currentOperator) {
         if (!prevValue || prevValue === 'undefined') {
             calcDisplay.textContent = '0.';
             prevValue = '0.';
@@ -177,7 +176,7 @@ function handleDecimal() {
 
 function negateValue() {
     if (calcDisplay.textContent && !/^0\.?0*$/.test(calcDisplay.textContent) && calcDisplay.textContent !== 'undefined') {
-        if (currentOperator === null) {
+        if (!currentOperator) {
             if (!checkLength(prevValue) && prevValue[0] !== '-') {
                 return;
             }
@@ -206,7 +205,7 @@ function handlePercent() {
         calcDisplay.textContent[calcDisplay.textContent.length - 1] !== '%' && 
         calcDisplay.textContent !== 'undefined' && 
         calcDisplay.textContent !== '-') {
-        if (currentOperator === null) {
+        if (!currentOperator) {
             if (!checkLength(prevValue)) {
                 return;
             }
@@ -243,7 +242,7 @@ function backspace() {
         clearScreen();
         return;
     }
-    if (currentOperator === null && prevValue) {
+    if (!currentOperator && prevValue) {
         equalsPressed = false;
         prevValue = prevValue.slice(0, -1);
         calcDisplay.textContent = prevValue;
