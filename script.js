@@ -51,7 +51,7 @@ function operate(left, right, operand) {
         }
         result = left / right;
     }
-    if (result % 1 !== 0) {
+    if (result % 1 !== 0 && result >= 1e-7) {
         return Math.round(result * 10000000) / 10000000;
     } else {
         return result;
@@ -64,20 +64,18 @@ function inputNumber(e) {
             prevValue = e.type == 'click' ? e.target.textContent : e.key;
             equalsPressed = false;
         } else {
-            if (prevValue === '0') {
-                return;
-            }
-            if (prevValue[prevValue.length - 1] === '%') {
+            if (prevValue === '0' ||
+                prevValue[prevValue.length - 1] === '%' ||
+                !checkLength(prevValue)) {
                 return;
             }
             prevValue += e.type == 'click' ? e.target.textContent : e.key;
         }
         calcDisplay.textContent = prevValue;
     } else {
-        if (currentValue === '0') {
-            return;
-        }
-        if (currentValue[currentValue.length - 1] === '%') {
+        if (currentValue === '0' ||
+            currentValue[currentValue.length - 1] === '%' ||
+            !checkLength(currentValue)) {
             return;
         }
         currentValue += e.type == 'click' ? e.target.textContent : e.key;
@@ -152,7 +150,10 @@ function handleDecimal() {
         if (!prevValue || prevValue === 'undefined') {
             calcDisplay.textContent = '0.';
             prevValue = '0.';
-        } else if (!/\./.test(prevValue) && prevValue[prevValue.length - 1] !== '%') {
+        } else if (!/\./.test(prevValue) && 
+            prevValue !== '-' && 
+            prevValue[prevValue.length - 1] !== '%' &&
+            checkLength(prevValue)) {
             calcDisplay.textContent += '.';
             prevValue += '.';
             equalsPressed = false;
@@ -161,7 +162,10 @@ function handleDecimal() {
         if (!currentValue) {
             calcDisplay.textContent = '0.';
             currentValue = '0.';
-        } else if (!/\./.test(currentValue) && currentValue[currentValue.length - 1] !== '%') {
+        } else if (!/\./.test(currentValue) && 
+            currentValue !== '-' && 
+            currentValue[currentValue.length - 1] !== '%' &&
+            checkLength(currentValue)) {
             calcDisplay.textContent += '.';
             currentValue += '.';
         }
@@ -171,13 +175,19 @@ function handleDecimal() {
 function negateValue() {
     if (calcDisplay.textContent && !/^0\.?0*$/.test(calcDisplay.textContent) && calcDisplay.textContent !== 'undefined') {
         if (currentOperator === null) {
+            if (!checkLength(prevValue) && prevValue[0] !== '-') {
+                return;
+            }
             if (prevValue[0] === '-') {
                 prevValue = prevValue.slice(1);
             } else {
                 prevValue = '-' + prevValue;
             }
             calcDisplay.textContent = prevValue;
-        } else if (currentValue) {
+        } else if (currentValue ) {
+            if (!checkLength(currentValue) && currentValue[0] !== '-') {
+                return;
+            }
             if (currentValue[0] === '-') {
                 currentValue = currentValue.slice(1);
             } else {
@@ -189,19 +199,25 @@ function negateValue() {
 }
 
 function handlePercent() {
-    if (calcDisplay.textContent && calcDisplay.textContent[calcDisplay.textContent.length - 1] !== '%' && calcDisplay.textContent !== 'undefined') {
+    if (calcDisplay.textContent && 
+        calcDisplay.textContent[calcDisplay.textContent.length - 1] !== '%' && 
+        calcDisplay.textContent !== 'undefined' && 
+        calcDisplay.textContent !== '-') {
         if (currentOperator === null) {
+            if (!checkLength(prevValue)) {
+                return;
+            }
             if (equalsPressed) {
                 equalsPressed = false;
             }
-            if (prevValue === '0.') {
+            if (prevValue === '0.' || prevValue === '-0.') {
                 prevValue = '0%';
             } else {
                 prevValue += '%';
             }
             calcDisplay.textContent = prevValue;
-        } else if (currentValue) {
-            if (currentValue === '0.') {
+        } else if (currentValue && !checkLength(currentValue)) {
+            if (currentValue === '0.' || currentValue === '-0.') {
                 currentValue = '0%';
             } else {
                 currentValue += '%';
@@ -258,4 +274,8 @@ function handleKeyboardInput(e) {
     } else if (e.key == 'Delete') {
         clearScreen();
     }
+}
+
+function checkLength(str) {
+    return str.length < 18 ? true : false;
 }
