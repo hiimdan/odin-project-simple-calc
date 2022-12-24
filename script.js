@@ -5,6 +5,9 @@ numberButtons.forEach(btn => {
 
 const clearButton = document.querySelector('#clear');
 clearButton.addEventListener('click', clearScreen);
+clearButton.addEventListener('mousedown', () => clearButton.classList.add('clear-pressed'));
+clearButton.addEventListener('mouseup', () => clearButton.classList.remove('clear-pressed'));
+clearButton.addEventListener('mouseleave', () => clearButton.classList.remove('clear-pressed'));
 
 const negateButton = document.querySelector('#negate');
 negateButton.addEventListener('click', negateValue);
@@ -99,7 +102,7 @@ function handleOperator(e) {
             applyOperatorStyle(currentOperator);
         } else {
             let result = operate(parsePercent(prevValue), parsePercent(currentValue), currentOperator);
-            prevValue = '' + result;
+            prevValue = checkOutput(result);
             calcDisplay.textContent = prevValue;
             currentOperator = prevValue === 'undefined' ? null : e.type == 'click' ? e.target.textContent : e.key;
             if (!currentOperator) {
@@ -132,7 +135,7 @@ function applyOperatorStyle(symbol) {
 function handleEquals() {
     if (prevValue && currentValue) {
         let result = operate(parsePercent(prevValue), parsePercent(currentValue), currentOperator);
-        prevValue = '' + result;
+        prevValue = checkOutput(result);
         calcDisplay.textContent = prevValue;
         currentValue = '';
         currentOperator = null;
@@ -271,11 +274,20 @@ function handleKeyboardInput(e) {
         handleDecimal();
     } else if (e.key == '%') {
         handlePercent();
-    } else if (e.key == 'Delete') {
+    } else if (e.key == 'Delete' || e.key == 'Escape') {
         clearScreen();
     }
 }
 
 function checkLength(str) {
     return str.length < 18 ? true : false;
+}
+
+function checkOutput(num) {
+    let numStr = '' + num;
+    if (numStr.length >= 18) {
+        return '' + num.toExponential(12);
+    } else {
+        return numStr;
+    }
 }
