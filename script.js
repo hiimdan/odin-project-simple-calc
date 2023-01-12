@@ -218,7 +218,7 @@ function handlePercent() {
                 prevValue += '%';
             }
             calcDisplay.textContent = prevValue;
-        } else if (currentValue && !checkLength(currentValue)) {
+        } else if (currentValue && checkLength(currentValue)) {
             if (currentValue === '0.' || currentValue === '-0.') {
                 currentValue = '0%';
             } else {
